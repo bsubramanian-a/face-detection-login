@@ -20,8 +20,6 @@ export default function Home() {
   const [error, setError] = useState('');
   const [detector, setDetector] = useState<any>();
   const [count, setCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-
   const WebcamComponent = () => <Webcam />
   const videoConstraints = {
     width: 600,
@@ -86,8 +84,7 @@ export default function Home() {
   };
 
   const detect = async () => {
-    console.log("detect")
-    setIsLoading(true);
+    // console.log("detect")
     if (webcamRef.current) {
       const webcamCurrent = webcamRef.current as any;
       // go next step only when the video is completely uploaded.
@@ -102,7 +99,6 @@ export default function Home() {
             setError("");
             capture();
           }else{
-            setIsLoading(false);
             setError("Multiple face detected");
             // runFaceDetect();
             setTimeout(() => {
@@ -111,7 +107,6 @@ export default function Home() {
           }
         }else{
           // runFaceDetect();
-          setIsLoading(false);
           setError("No face found");
           setTimeout(() => {
             detect();
@@ -126,7 +121,7 @@ export default function Home() {
       setCount(1);
       runFaceDetect();
     }
-    // detect();
+    detect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webcamRef.current?.video?.readyState]);
 
@@ -138,9 +133,11 @@ export default function Home() {
     const res = await fetch("https://api.eyeota.ai/api/match_face", {
         method: "POST",
         body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
     }).then((res) => res.json());
     console.log("res", res);
-    setIsLoading(false);
     if(res?.code == 28){
       setError(res?.message);
       detect();
@@ -176,7 +173,7 @@ export default function Home() {
       <h2 className="mb-5 text-center">
         Face recognition system
       </h2>
-      <div className='row flex-row justify-content-around align-items-start'>
+      <div className='row flex flex-row justify-content-around align-items-start'>
         <div className='col-12 col-lg-12'>
           <Webcam
             audio={false}
@@ -185,10 +182,8 @@ export default function Home() {
             width={'100%'}
             videoConstraints={videoConstraints}
           />
-          <div className='d-flex flex-row justify-content-around align-items-start'>
-            <button onClick={() => !isLoading ? detect() : undefined } className="btn btn-primary px-5 p-3 mt-5 fw-bold"> {isLoading ? 'Loading...' : 'Scan your face'}</button> 
-            {error && <h2 className='errorMsg mt-3'>{error}</h2>}
-          </div>
+
+          {error && <h2 className='errorMsg mt-3'>{error}</h2>}
         </div>
         {/* <div className='col-12 col-lg-4'>
           {error && <h2 className='errorMsg'>{error}</h2>}

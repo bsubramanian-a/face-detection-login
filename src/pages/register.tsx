@@ -28,7 +28,7 @@ export default function Home() {
   const [detector, setDetector] = useState<any>();
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingF, setIsLoadingF] = useState(false);
+
   // Hook
   function useWindowSize() {
     // Initialize state with undefined width/height so server and client renders match
@@ -64,7 +64,6 @@ export default function Home() {
   const capture = React.useCallback(() => {
     const pictureSrc = webcamRef.current.getScreenshot()
     setPicture(pictureSrc);
-    setIsLoadingF(false);
     // submit(pictureSrc);
     // console.log("pictureSrc", pictureSrc);
   }, []);
@@ -93,7 +92,6 @@ export default function Home() {
   };
 
   const detect = async () => {
-    setIsLoadingF(true);
     // console.log("detect")
     if (webcamRef.current) {
       const webcamCurrent = webcamRef.current as any;
@@ -109,7 +107,6 @@ export default function Home() {
             setError("");
             capture();
           }else{
-            setIsLoadingF(false);
             setError("Multiple face detected");
             // runFaceDetect();
             setTimeout(() => {
@@ -119,7 +116,6 @@ export default function Home() {
         }else{
           // runFaceDetect();
           setError("No face found");
-          setIsLoadingF(false);
           setTimeout(() => {
             detect();
           }, 2000)
@@ -137,7 +133,7 @@ export default function Home() {
     //   console.log("webcamRef.current?.video?.readyState",webcamRef.current?.video?.readyState);
     // }
 
-    // detect();
+    detect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webcamRef.current?.video?.readyState])
 
@@ -196,9 +192,6 @@ export default function Home() {
             width={'100%'}
             videoConstraints={videoConstraints}
           />
-          <div className='d-flex flex-row justify-content-around align-items-start'>
-            <button onClick={() => !isLoadingF ? detect() : undefined } className="btn btn-primary px-5 p-3 mt-4 fw-bold"> {isLoadingF ? 'Loading...' : 'Scan your face'}</button> 
-          </div>
         </div>
         <div className='col-12 col-lg-4'>
           {error && <h2 className='errorMsg'>{error}</h2>}
