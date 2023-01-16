@@ -117,3 +117,7 @@ input{
 .errorMsg{
   color: red;
 }
+
+body{
+  background-color: #fff !important;
+}
