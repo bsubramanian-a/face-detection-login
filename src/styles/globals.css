@@ -105,3 +105,15 @@ a {
     color-scheme: dark;
   }
 }
+
+input{
+  width: 100%;
+  /* margin-top: 30px !important; */
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.errorMsg{
+  color: red;
+}
