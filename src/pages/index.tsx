@@ -67,16 +67,19 @@ export default function Home() {
   }, []);
 
   const runFaceDetect = async () => {
-    // console.log("runFaceDetect")
+    console.log("runFaceDetect")
     const model = faceDetection.SupportedModels.MediaPipeFaceDetector;
     const detectorConfig:any = {
       runtime: 'tfjs',
       solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection',
-      maxFaces: 1
+      maxFaces: 1,
+      boundingBox: true,
+      keyPoints: true
+      
     };
     const detector = await faceDetection.createDetector(model, detectorConfig);
 
-    // console.log("detector", detector);
+    console.log("detector", detector);
     setDetector(detector);
 
     // const faces = await detector.estimateFaces(webcamRef?.current);
@@ -84,17 +87,17 @@ export default function Home() {
   };
 
   const detect = async () => {
-    // console.log("detect")
+    console.log("detect")
     if (webcamRef.current) {
       const webcamCurrent = webcamRef.current as any;
       // go next step only when the video is completely uploaded.
       if (webcamCurrent.video.readyState === 4) {
         const video = webcamCurrent.video;
-        // console.log("before prediction");
+        console.log("before prediction");
         const predictions = await detector.estimateFaces(video);
         // console.log("predictions", predictions)
         if (predictions.length > 0) {
-          // console.log('predictions', predictions);
+          console.log('predictions', predictions);
           if(predictions?.length == 1){
             setError("");
             capture();
@@ -117,6 +120,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    console.log("useeffect");
     if(count == 0){
       setCount(1);
       runFaceDetect();
@@ -134,7 +138,7 @@ export default function Home() {
         method: "POST",
         body: formData,
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
     }).then((res) => res.json());
     console.log("res", res);
@@ -167,7 +171,7 @@ export default function Home() {
       <Link className='btn btn-primary px-3 p-2 ms-auto' href="/register">Register</Link>
     </div>
 
-     {/* <button onClick={runFaceDetect}>scan</button> */}
+     <button onClick={detect}>scan</button>
 
      <div>
       <h2 className="mb-5 text-center">

@@ -75,7 +75,7 @@ export default function Home() {
 //  }, [])
 
   const runFaceDetect = async () => {
-    // console.log("runFaceDetect")
+    console.log("runFaceDetect")
     const model = faceDetection.SupportedModels.MediaPipeFaceDetector;
     const detectorConfig:any = {
       runtime: 'tfjs',
@@ -92,7 +92,7 @@ export default function Home() {
   };
 
   const detect = async () => {
-    // console.log("detect")
+    console.log("detect")
     if (webcamRef.current) {
       const webcamCurrent = webcamRef.current as any;
       // go next step only when the video is completely uploaded.
@@ -102,7 +102,7 @@ export default function Home() {
         const predictions = await detector.estimateFaces(video);
         // console.log("predictions", predictions)
         if (predictions.length > 0) {
-          // console.log('predictions', predictions);
+          console.log('predictions', predictions);
           if(predictions?.length == 1){
             setError("");
             capture();
@@ -125,6 +125,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    console.log("useeffect")
     if(count == 0){
       setCount(1);
       runFaceDetect();
