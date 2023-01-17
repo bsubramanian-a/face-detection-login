@@ -10,6 +10,7 @@ import '@tensorflow/tfjs-backend-webgl';
 import * as faceDetection from '@tensorflow-models/face-detection';
 import Webcam from 'react-webcam';
 import { useRouter } from 'next/navigation';
+import Canvas from './canvas'
 
 export default function Home() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function Home() {
   const [error, setError] = useState('');
   const [detector, setDetector] = useState<any>();
   const [count, setCount] = useState(0);
+  const [predictions, setPredictions] = useState(0);
   const WebcamComponent = () => <Webcam />
   const videoConstraints = {
     width: 600,
@@ -77,10 +79,16 @@ export default function Home() {
       keyPoints: true
       
     };
-    const detector = await faceDetection.createDetector(model, detectorConfig);
 
-    console.log("detector", detector);
-    setDetector(detector);
+    if (detector != null) {
+      detector.dispose();
+      setDetector(null);
+    }
+
+    const detectorN = await faceDetection.createDetector(model, detectorConfig);
+
+    console.log("detector", detectorN);
+    setDetector(detectorN);
 
     // const faces = await detector.estimateFaces(webcamRef?.current);
     // console.log("faces", faces);
@@ -95,12 +103,13 @@ export default function Home() {
         const video = webcamCurrent.video;
         console.log("before prediction");
         const predictions = await detector.estimateFaces(video);
+        setPredictions(predictions);
         // console.log("predictions", predictions)
         if (predictions.length > 0) {
           console.log('predictions', predictions);
           if(predictions?.length == 1){
             setError("");
-            capture();
+            // capture();
           }else{
             setError("Multiple face detected");
             // runFaceDetect();
@@ -118,6 +127,20 @@ export default function Home() {
       }
     };
   };
+
+  useEffect(() => {
+    setTimeout(async() => {
+      if (webcamRef.current) {
+        const webcamCurrent = webcamRef.current as any;
+        if (webcamCurrent.video.readyState === 4) {
+          const video = webcamCurrent.video;
+          const predictions = await detector.estimateFaces(video);
+          console.log("setprediction")
+          setPredictions(predictions);
+        }
+      }
+    }, 500)
+  }, [predictions])
 
   useEffect(() => {
     console.log("useeffect");
@@ -179,13 +202,19 @@ export default function Home() {
       </h2>
       <div className='row flex flex-row justify-content-around align-items-start'>
         <div className='col-12 col-lg-12'>
-          <Webcam
-            audio={false}
-            height={size.height - ((size.height / 10) * 3)}
-            ref={webcamRef}
-            width={'100%'}
-            videoConstraints={videoConstraints}
-          />
+          <div className='position-relative'>
+            {/* <div style={{position: 'absolute', height: size.height - ((size.height / 10) * 3), width: '100%'}}>
+              <Canvas height={size.height - ((size.height / 10) * 3)} />
+            </div> */}
+            <Canvas predictions={predictions} webcamRef={webcamRef} videoHeight={size.height - ((size.height / 10) * 3)}/>
+            <Webcam
+              audio={false}
+              height={size.height - ((size.height / 10) * 3)}
+              ref={webcamRef}
+              width={'100%'}
+              videoConstraints={videoConstraints}
+            />
+          </div>
 
           {error && <h2 className='errorMsg mt-3'>{error}</h2>}
         </div>
