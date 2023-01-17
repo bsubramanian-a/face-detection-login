@@ -10,7 +10,8 @@ import '@tensorflow/tfjs-backend-webgl';
 import * as faceDetection from '@tensorflow-models/face-detection';
 import Webcam from 'react-webcam';
 import { useRouter } from 'next/navigation';
-import Canvas from './canvas'
+import Canvas from './canvas';
+import drawResult from '../utils/utils'
 
 export default function Home() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function Home() {
   const [count, setCount] = useState(0);
   const [predictions, setPredictions] = useState(0);
   const WebcamComponent = () => <Webcam />
+  const canvasRef = useRef<any>(null);
   const videoConstraints = {
     width: 600,
     height: 400,
@@ -102,7 +104,7 @@ export default function Home() {
       if (webcamCurrent.video.readyState === 4) {
         const video = webcamCurrent.video;
         console.log("before prediction");
-        const predictions = await detector.estimateFaces(video);
+        const predictions = await detector.estimateFaces(video, {flipHorizontal: false});
         setPredictions(predictions);
         // console.log("predictions", predictions)
         if (predictions.length > 0) {
@@ -135,6 +137,11 @@ export default function Home() {
         if (webcamCurrent.video.readyState === 4) {
           const video = webcamCurrent.video;
           const predictions = await detector.estimateFaces(video);
+          const canvas = canvasRef?.current;
+          // var ctx = canvas?.getContext('2d');
+          // ctx.drawImage(
+          //   video, 0, 0, video.videoWidth, video.videoHeight);
+          // drawResult(ctx, predictions, true, true)
           console.log("setprediction")
           setPredictions(predictions);
         }
@@ -163,6 +170,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
+        redirect: 'follow'
     }).then((res) => res.json());
     console.log("res", res);
     if(res?.code == 28){
@@ -206,7 +214,8 @@ export default function Home() {
             {/* <div style={{position: 'absolute', height: size.height - ((size.height / 10) * 3), width: '100%'}}>
               <Canvas height={size.height - ((size.height / 10) * 3)} />
             </div> */}
-            <Canvas predictions={predictions} webcamRef={webcamRef} videoHeight={size.height - ((size.height / 10) * 3)}/>
+            {/* <Canvas predictions={predictions} webcamRef={webcamRef} videoHeight={size.height - ((size.height / 10) * 3)}/> */}
+            {/* <canvas ref={canvasRef}></canvas> */}
             <Webcam
               audio={false}
               height={size.height - ((size.height / 10) * 3)}
