@@ -194,7 +194,7 @@ export default function Home() {
       <Link className='btn btn-primary px-3 p-2 ms-auto' href="/register">Register</Link>
     </div>
 
-     <button onClick={detect}>scan</button>
+     {/* <button onClick={detect}>scan</button> */}
 
      <div>
       <h2 className="mb-5 text-center">
