@@ -10,8 +10,8 @@ import '@tensorflow/tfjs-backend-webgl';
 import * as faceDetection from '@tensorflow-models/face-detection';
 import Webcam from 'react-webcam';
 import { useRouter } from 'next/navigation';
-import Canvas from './canvas';
-import drawResult from '../utils/utils'
+// import Canvas from './canvas';
+// import drawResult from '../utils/utils'
 
 export default function Home() {
   const router = useRouter();
