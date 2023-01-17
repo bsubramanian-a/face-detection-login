@@ -10,8 +10,6 @@ import '@tensorflow/tfjs-backend-webgl';
 import * as faceDetection from '@tensorflow-models/face-detection';
 import Webcam from 'react-webcam';
 import { useRouter } from 'next/navigation';
-// import Canvas from './canvas';
-// import drawResult from '../utils/utils'
 
 export default function Home() {
   const router = useRouter();
@@ -22,9 +20,7 @@ export default function Home() {
   const [error, setError] = useState('');
   const [detector, setDetector] = useState<any>();
   const [count, setCount] = useState(0);
-  const [predictions, setPredictions] = useState(0);
   const WebcamComponent = () => <Webcam />
-  const canvasRef = useRef<any>(null);
   const videoConstraints = {
     width: 600,
     height: 400,
@@ -81,16 +77,10 @@ export default function Home() {
       keyPoints: true
       
     };
+    const detector = await faceDetection.createDetector(model, detectorConfig);
 
-    if (detector != null) {
-      detector.dispose();
-      setDetector(null);
-    }
-
-    const detectorN = await faceDetection.createDetector(model, detectorConfig);
-
-    console.log("detector", detectorN);
-    setDetector(detectorN);
+    console.log("detector", detector);
+    setDetector(detector);
 
     // const faces = await detector.estimateFaces(webcamRef?.current);
     // console.log("faces", faces);
@@ -104,14 +94,13 @@ export default function Home() {
       if (webcamCurrent.video.readyState === 4) {
         const video = webcamCurrent.video;
         console.log("before prediction");
-        const predictions = await detector.estimateFaces(video, {flipHorizontal: false});
-        setPredictions(predictions);
+        const predictions = await detector.estimateFaces(video);
         // console.log("predictions", predictions)
         if (predictions.length > 0) {
           console.log('predictions', predictions);
           if(predictions?.length == 1){
             setError("");
-            // capture();
+            capture();
           }else{
             setError("Multiple face detected");
             // runFaceDetect();
@@ -131,25 +120,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setTimeout(async() => {
-      if (webcamRef.current) {
-        const webcamCurrent = webcamRef.current as any;
-        if (webcamCurrent.video.readyState === 4) {
-          const video = webcamCurrent.video;
-          const predictions = await detector.estimateFaces(video);
-          const canvas = canvasRef?.current;
-          // var ctx = canvas?.getContext('2d');
-          // ctx.drawImage(
-          //   video, 0, 0, video.videoWidth, video.videoHeight);
-          // drawResult(ctx, predictions, true, true)
-          console.log("setprediction")
-          setPredictions(predictions);
-        }
-      }
-    }, 500)
-  }, [predictions])
-
-  useEffect(() => {
     console.log("useeffect");
     if(count == 0){
       setCount(1);
@@ -167,10 +137,10 @@ export default function Home() {
     const res = await fetch("https://api.eyeota.ai/api/match_face", {
         method: "POST",
         body: formData,
+        redirect: 'follow',
         headers: {
           'Content-Type': 'application/json',
         },
-        redirect: 'follow'
     }).then((res) => res.json());
     console.log("res", res);
     if(res?.code == 28){
@@ -210,20 +180,13 @@ export default function Home() {
       </h2>
       <div className='row flex flex-row justify-content-around align-items-start'>
         <div className='col-12 col-lg-12'>
-          <div className='position-relative'>
-            {/* <div style={{position: 'absolute', height: size.height - ((size.height / 10) * 3), width: '100%'}}>
-              <Canvas height={size.height - ((size.height / 10) * 3)} />
-            </div> */}
-            {/* <Canvas predictions={predictions} webcamRef={webcamRef} videoHeight={size.height - ((size.height / 10) * 3)}/> */}
-            {/* <canvas ref={canvasRef}></canvas> */}
-            <Webcam
-              audio={false}
-              height={size.height - ((size.height / 10) * 3)}
-              ref={webcamRef}
-              width={'100%'}
-              videoConstraints={videoConstraints}
-            />
-          </div>
+          <Webcam
+            audio={false}
+            height={size.height - ((size.height / 10) * 3)}
+            ref={webcamRef}
+            width={'100%'}
+            videoConstraints={videoConstraints}
+          />
 
           {error && <h2 className='errorMsg mt-3'>{error}</h2>}
         </div>
